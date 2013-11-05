@@ -265,4 +265,4 @@ provided:
 (We must define a main value for doctest to run.)
 
 > main :: IO ()
-> main = doctest ["tests/Intro.lhs"]
+> main = doctest ["tests/Intro.lhs", "tests/TH.hs"]
