@@ -5,7 +5,6 @@ module Data.Vinyl.TH
   , makeVinylExtendedRecord
   ) where
 
-import Control.Applicative
 import Data.Vinyl
 import Language.Haskell.TH
 
@@ -21,20 +20,20 @@ makeVinylField name typ = valD (varP (mkName name)) body []
 
 -- | Create an alias for a list of fields.
 makeVinylRecord :: String -> [Name] -> Q [Dec]
-makeVinylRecord name fields = do
+makeVinylRecord name fields =
   mkVinylRecord name promotedNilT fields
 
 -- | Create an alias that extends an existing list of fields with a given list.
 makeVinylExtendedRecord :: String -> Name -> [Name] -> Q [Dec]
-makeVinylExtendedRecord name basename fields = do
-  basetype <- getVinylRecordType basename
+makeVinylExtendedRecord name basename fields =
   mkVinylRecord name (getVinylRecordType basename) fields
 
 mkVinylRecord :: String -> Q Type -> [Name] -> Q [Dec]
-mkVinylRecord name basetype fields = do
-  let types = map getVinylFieldType fields
-  fieldTypeList <- foldr (\ ty tys -> [t| $ty ': $tys |]) basetype types
-  return $ [ TySynD (mkName name) [] fieldTypeList ]
+mkVinylRecord name basetype fields = fmap return decl
+  where
+    types = map getVinylFieldType fields
+    fieldTypeList = foldr (\ ty tys -> [t| $ty ': $tys |]) basetype types
+    decl = tySynD (mkName name) [] fieldTypeList
 
 getVinylRecordType :: Name -> Q Type
 getVinylRecordType name = do
